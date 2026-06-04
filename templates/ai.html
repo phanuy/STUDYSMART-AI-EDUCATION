@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Gia Sư Premium - StudySmart AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Tùy chỉnh thanh cuộn siêu mỏng cho vùng chat */
+        #chat-box::-webkit-scrollbar {
+            width: 6px;
+        }
+        #chat-box::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #chat-box::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.3);
+            border-radius: 10px;
+        }
+        #chat-box::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 min-h-screen flex flex-col font-sans antialiased text-slate-200 relative overflow-x-hidden">
+
+<div class="absolute top-20 left-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute bottom-10 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+<nav class="backdrop-blur-md bg-slate-900/60 border-b border-slate-800 text-white shadow-lg sticky top-0 z-50 shrink-0">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="flex justify-between items-center py-4">
+            <div class="flex gap-6">
+                <a href="/" class="hover:text-cyan-400 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-book"></i> Chuyên đề</a>
+                <a href="/overview" class="hover:text-cyan-400 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-chart-simple"></i> Tổng quan</a>
+                <a href="/study-plan" class="hover:text-cyan-400 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-calendar-days"></i> Lịch học</a>
+                <a href="/ai" class="text-cyan-400 font-bold border-b-2 border-cyan-400 pb-1 flex items-center gap-1.5"><i class="fa-solid fa-robot"></i> AI Gia sư</a>
+            </div>
+
+            <div class="flex gap-4 items-center">
+                {% if session.get('user_id') %}
+                    <span class="text-sm text-slate-400">Xin chào, <b class="text-cyan-400">{{ session.get('username') }}</b></span>
+                    <a href="/logout" class="text-sm bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-4 py-1.5 rounded-xl border border-red-500/30 transition-all duration-300">Đăng xuất</a>
+                {% else %}
+                    <a href="/login" class="text-sm font-semibold text-slate-300 hover:text-cyan-400 transition-colors">Đăng nhập</a>
+                    <a href="/register" class="text-sm bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white px-4 py-1.5 rounded-xl font-bold shadow-md transition-all duration-300">Đăng ký</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="max-w-7xl w-full mx-auto my-6 px-4 flex-1 flex flex-col md:flex-row gap-6 h-[calc(100vh-140px)] z-10 relative">
+    
+    <div class="w-full md:w-1/4 backdrop-blur-xl bg-slate-900/40 p-5 rounded-2xl border border-slate-800 shadow-2xl flex flex-col gap-3 shrink-0">
+        <div class="flex items-center gap-2.5 pb-3 border-b border-slate-800">
+            <div class="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400">
+                <i class="fa-solid fa-lightbulb"></i>
+            </div>
+            <h2 class="font-bold text-slate-300 text-sm tracking-wider uppercase">Gợi ý siêu tốc</h2>
+        </div>
+        
+        <p class="text-xs text-slate-400 my-1">Chọn một chủ đề mẫu để AI Gia sư giảng giải ngay lập tức:</p>
+        
+        <button onclick="useSuggestion('Giải thích chi tiết công thức Đạo hàm của hàm số lượng giác lớp 11 kèm ví dụ.')" 
+                class="text-left text-xs bg-slate-800/40 hover:bg-gradient-to-r hover:from-cyan-500/10 hover:to-blue-500/10 hover:border-cyan-500/40 p-3.5 rounded-xl border border-slate-800 text-slate-300 transition-all duration-300 flex items-start gap-3 group">
+            <i class="fa-solid fa-calculator text-cyan-400 group-hover:scale-110 transition-transform mt-0.5"></i>
+            <span>Đạo hàm Lượng giác (Lớp 11)</span>
+        </button>
+
+        <button onclick="useSuggestion('Tóm tắt lý thuyết trọng tâm chương Ester - Lipit môn Hóa học lớp 12.')" 
+                class="text-left text-xs bg-slate-800/40 hover:bg-gradient-to-r hover:from-emerald-500/10 hover:to-teal-500/10 hover:border-emerald-500/40 p-3.5 rounded-xl border border-slate-800 text-slate-300 transition-all duration-300 flex items-start gap-3 group">
+            <i class="fa-solid fa-flask text-emerald-400 group-hover:scale-110 transition-transform mt-0.5"></i>
+            <span>Trọng tâm Ester - Lipit (Hóa 12)</span>
+        </button>
+
+        <button onclick="useSuggestion('Phân biệt cách dùng thì Hiện tại hoàn thành và Quá khứ đơn bằng tiếng Anh.')" 
+                class="text-left text-xs bg-slate-800/40 hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-pink-500/10 hover:border-purple-500/40 p-3.5 rounded-xl border border-slate-800 text-slate-300 transition-all duration-300 flex items-start gap-3 group">
+            <i class="fa-solid fa-language text-purple-400 group-hover:scale-110 transition-transform mt-0.5"></i>
+            <span>Thì Hiện tại hoàn thành (Anh văn)</span>
+        </button>
+
+        <button onclick="useSuggestion('Cho tôi một bài tập trắc nghiệm ngắn về Con lắc lò xo môn Vật lí lớp 12.')" 
+                class="text-left text-xs bg-slate-800/40 hover:bg-gradient-to-r hover:from-amber-500/10 hover:to-orange-500/10 hover:border-amber-500/40 p-3.5 rounded-xl border border-slate-800 text-slate-300 transition-all duration-300 flex items-start gap-3 group">
+            <i class="fa-solid fa-bolt text-amber-400 group-hover:scale-110 transition-transform mt-0.5"></i>
+            <span>Trắc nghiệm Con lắc lò xo (Lí 12)</span>
+        </button>
+    </div>
+
+    <div class="flex-1 backdrop-blur-xl bg-slate-900/40 rounded-2xl border border-slate-800 shadow-2xl flex flex-col overflow-hidden">
+        
+        <div class="bg-gradient-to-r from-slate-900/90 via-slate-800/80 to-slate-900/90 p-4 border-b border-slate-800 flex items-center justify-between shadow-md">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-tr from-cyan-500 to-blue-600 text-white rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.4)] relative">
+                    <i class="fa-solid fa-robot text-sm"></i>
+                    <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-slate-900"></span>
+                </div>
+                <div>
+                    <h3 class="font-bold text-sm text-slate-100 tracking-wide">SmartAI Tutor Premium</h3>
+                    <p class="text-xs text-slate-400">Hệ thống gia sư 24/7 chương trình GDPT 2018</p>
+                </div>
+            </div>
+            <button onclick="clearChat()" class="text-xs bg-slate-800/60 hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 px-3 py-2 rounded-xl border border-slate-700 transition-all duration-300">
+                <i class="fa-solid fa-trash-can mr-1"></i> Xóa lịch sử chat
+            </button>
+        </div>
+
+        <div id="chat-box" class="flex-1 p-6 overflow-y-auto space-y-5 bg-slate-950/20">
+            
+            <div class="flex items-start gap-3.5 max-w-[85%] animate-[fadeIn_0.4s_ease-out]">
+                <div class="w-8 h-8 bg-slate-800 border border-slate-700 text-cyan-400 rounded-full flex items-center justify-center shadow shrink-0">
+                    <i class="fa-solid fa-robot text-xs"></i>
+                </div>
+                <div class="bg-slate-800/70 backdrop-blur-md p-4 rounded-2xl rounded-tl-none border border-slate-700/60 text-slate-200 text-sm leading-relaxed shadow-sm">
+                    Chào bạn! Mình là Gia sư Trí tuệ Nhân tạo **StudySmart**. Hãy gửi cho mình bất kỳ bài tập, công thức khó hoặc chủ đề nào thuộc môn **Toán, Lý, Hóa, Tiếng Anh (Lớp 10 - 12)** để cùng nhau giải quyết nhé! ✨
+                </div>
+            </div>
+
+        </div>
+
+        <div id="typing-indicator" class="hidden px-6 py-3 bg-slate-950/10 border-t border-slate-800/40 flex items-start gap-3.5">
+            <div class="w-8 h-8 bg-slate-800 border border-slate-700 text-cyan-400 rounded-full flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-robot text-xs"></i>
+            </div>
+            <div class="bg-slate-800/40 px-4 py-3 rounded-2xl rounded-tl-none border border-slate-800 text-slate-400 text-sm flex gap-1.5 items-center">
+                <span class="w-2 h-2 bg-cyan-400 rounded-full animate-bounce [animation-duration:0.8s]"></span>
+                <span class="w-2 h-2 bg-cyan-400 rounded-full animate-bounce [animation-duration:0.8s] [animation-delay:0.2s]"></span>
+                <span class="w-2 h-2 bg-cyan-400 rounded-full animate-bounce [animation-duration:0.8s] [animation-delay:0.4s]"></span>
+            </div>
+        </div>
+
+        <form id="chat-form" onsubmit="sendMessage(event)" class="p-4 bg-slate-900/80 backdrop-blur-xl border-t border-slate-800 flex gap-3 items-center">
+            <input 
+                type="text" 
+                id="user-input"
+                autocomplete="off"
+                placeholder="Nhập câu hỏi bài tập, công thức lý thuyết cần gia sư giải đáp..." 
+                class="flex-1 bg-slate-950/60 border border-slate-800 p-3.5 rounded-xl text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 text-sm transition-all placeholder-slate-500"
+                required
+            >
+            <button type="submit" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white w-12 h-12 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.3)] hover:shadow-[0_0_20px_rgba(6,182,212,0.5)] transition-all duration-300 shrink-0">
+                <i class="fa-solid fa-paper-plane text-sm"></i>
+            </button>
+        </form>
+
+    </div>
+</div>
+
+<script>
+const chatBox = document.getElementById('chat-box');
+const userInput = document.getElementById('user-input');
+const typingIndicator = document.getElementById('typing-indicator');
+
+function sendMessage(event) {
+    if (event) event.preventDefault();
+    
+    const messageText = userInput.value.trim();
+    if (!messageText) return;
+
+    // 1. Render tin nhắn học sinh (Gradient xanh-tím sang trọng)
+    appendMessage(messageText, 'user');
+    userInput.value = ''; 
+
+    // 2. Hiện hiệu ứng chờ phản hồi
+    typingIndicator.classList.remove('hidden');
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // 3. Gửi API lên Python Flask Backend
+    fetch('/ask-ai', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: messageText })
+    })
+    .then(response => response.json())
+    .then(data => {
+        typingIndicator.classList.add('hidden');
+        // 4. Render câu trả lời của AI Gia sư
+        appendMessage(data.response, 'ai');
+    })
+    .catch(error => {
+        typingIndicator.classList.add('hidden');
+        appendMessage('Có lỗi kết nối mạng xảy ra. Bạn hãy kiểm tra lại kết nối mạng hoặc khởi động lại server nhé!', 'ai');
+        console.error('Error:', error);
+    });
+}
+
+function appendMessage(text, sender) {
+    const messageWrapper = document.createElement('div');
+    messageWrapper.className = sender === 'user' ? 'flex justify-end animate-[slideLeft_0.3s_ease-out]' : 'flex items-start gap-3.5 max-w-[85%] animate-[slideRight_0.3s_ease-out]';
+
+    if (sender === 'user') {
+        messageWrapper.innerHTML = `
+            <div class="bg-gradient-to-br from-cyan-600 to-blue-700 text-white p-4 rounded-2xl rounded-tr-none shadow-lg text-sm max-w-[85%] leading-relaxed border border-cyan-500/20">
+                ${text}
+            </div>
+        `;
+    } else {
+        messageWrapper.innerHTML = `
+            <div class="w-8 h-8 bg-slate-800 border border-slate-700 text-cyan-400 rounded-full flex items-center justify-center shadow shrink-0">
+                <i class="fa-solid fa-robot text-xs"></i>
+            </div>
+            <div class="bg-slate-800/70 backdrop-blur-md p-4 rounded-2xl rounded-tl-none border border-slate-700/60 text-slate-200 text-sm leading-relaxed whitespace-pre-line shadow-sm">
+                ${text}
+            </div>
+        `;
+    }
+
+    chatBox.appendChild(messageWrapper);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function useSuggestion(text) {
+    userInput.value = text;
+    userInput.focus();
+}
+
+function clearChat() {
+    if (confirm("Bạn có chắc chắn muốn xóa toàn bộ lịch sử hội thoại hiện tại không?")) {
+        chatBox.innerHTML = `
+            <div class="flex items-start gap-3.5 max-w-[85%]">
+                <div class="w-8 h-8 bg-slate-800 border border-slate-700 text-cyan-400 rounded-full flex items-center justify-center shadow shrink-0">
+                    <i class="fa-solid fa-robot text-xs"></i>
+                </div>
+                <div class="bg-slate-800/70 backdrop-blur-md p-4 rounded-2xl rounded-tl-none border border-slate-700/60 text-slate-200 text-sm leading-relaxed">
+                    Hội thoại đã được xóa sạch sẽ. Hãy đặt câu hỏi mới để mình hỗ trợ nhé! 📚
+                </div>
+            </div>
+        `;
+    }
+}
+</script>
+
+<style>
+@keyframes slideLeft {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideRight {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+</style>
+
+</body>
+</html>

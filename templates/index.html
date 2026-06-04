@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chuyên đề môn học - StudySmart AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 min-h-screen flex flex-col font-sans antialiased text-slate-200 relative overflow-x-hidden">
+
+<div class="absolute top-20 left-10 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute bottom-10 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+<nav class="backdrop-blur-md bg-slate-900/60 border-b border-slate-800 text-white shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="flex justify-between items-center py-4">
+            <div class="flex gap-6">
+                <a href="/" class="text-cyan-400 font-bold border-b-2 border-cyan-400 pb-1 flex items-center gap-1.5"><i class="fa-solid fa-book"></i> Chuyên đề</a>
+                <a href="/overview" class="hover:text-cyan-400 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-chart-simple"></i> Tổng quan</a>
+                <a href="/study-plan" class="hover:text-cyan-400 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-calendar-days"></i> Lịch học</a>
+                <a href="/ai" class="hover:text-cyan-400 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-robot"></i> AI Gia sư</a>
+            </div>
+            <div class="flex gap-4 items-center">
+                {% if session.get('user_id') %}
+                    <span class="text-sm text-slate-400">Xin chào, <b class="text-cyan-400">{{ session.get('username') }}</b></span>
+                    <a href="/logout" class="text-sm bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-4 py-1.5 rounded-xl border border-red-500/30 transition-all duration-300">Đăng xuất</a>
+                {% else %}
+                    <a href="/login" class="text-sm font-semibold text-slate-300 hover:text-cyan-400 transition-colors">Đăng nhập</a>
+                    <a href="/register" class="text-sm bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-4 py-1.5 rounded-xl font-bold shadow-md transition-all">Đăng ký</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="max-w-5xl mx-auto p-6 w-full z-10 relative flex-1">
+    <div class="text-center my-10">
+        <div class="inline-flex items-center gap-3 bg-slate-800/50 px-4 py-2 rounded-full border border-slate-700 mb-4">
+            <span class="text-xs font-bold text-cyan-400 tracking-widest uppercase">📚 StudySmart AI Platform</span>
+        </div>
+        <h1 class="text-4xl font-black text-white mb-3">Phân Tích Năng Lực Chuyên Đề</h1>
+        <p class="text-slate-400 max-w-2xl mx-auto text-sm leading-relaxed">
+            Nhập điểm số hiện tại của các chuyên đề để hệ thống AI xây dựng lộ trình bứt phá điểm số tối ưu nhất dành riêng cho bạn.
+        </p>
+    </div>
+
+    <div class="backdrop-blur-xl bg-slate-900/40 p-8 rounded-3xl border border-slate-800 shadow-2xl">
+        <form method="POST" action="/generate-plan" class="space-y-8">
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Chọn môn học:</label>
+                    <div class="relative">
+                        <select id="subjectSelect" name="subject" onchange="updateTopics()" class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-3 rounded-2xl focus:ring-2 focus:ring-cyan-500/50 appearance-none cursor-pointer">
+                            <option value="Toán">Môn Toán</option>
+                            <option value="Vật lý">Môn Vật lý</option>
+                            <option value="Hóa học">Môn Hóa học</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down absolute right-4 top-4 text-slate-500 pointer-events-none"></i>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Chọn khối lớp:</label>
+                    <div class="relative">
+                        <select id="gradeSelect" name="grade" onchange="updateTopics()" class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-3 rounded-2xl focus:ring-2 focus:ring-cyan-500/50 appearance-none cursor-pointer">
+                            <option value="11">Lớp 11</option>
+                            <option value="12">Lớp 12</option>
+                            <option value="10">Lớp 10</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down absolute right-4 top-4 text-slate-500 pointer-events-none"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div id="topicsContainer" class="grid md:grid-cols-2 gap-x-8 gap-y-5 border-y border-slate-800/50 py-8">
+                </div>
+
+            <div class="grid md:grid-cols-2 gap-6 pt-4">
+                <div class="bg-slate-950/30 p-4 rounded-2xl border border-slate-800 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 text-xl">
+                        <i class="fa-solid fa-stopwatch"></i>
+                    </div>
+                    <div class="flex-1">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase">Giờ học mỗi ngày</label>
+                        <input type="number" step="0.1" name="study_hours" placeholder="Giờ học mỗi ngày (vd: 3)" 
+                               class="w-full bg-transparent border-none text-slate-100 font-bold p-0 focus:ring-0 placeholder:text-slate-700 outline-none" required>
+                    </div>
+                </div>
+                <div class="bg-slate-950/30 p-4 rounded-2xl border border-slate-800 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400 text-xl">
+                        <i class="fa-solid fa-bullseye"></i>
+                    </div>
+                    <div class="flex-1">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase">Mục tiêu điểm số</label>
+                        <input type="number" step="0.1" name="target_score" placeholder="Mục tiêu điểm (vd: 8)" 
+                               class="w-full bg-transparent border-none text-slate-100 font-bold p-0 focus:ring-0 placeholder:text-slate-700 outline-none" required>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-gradient-to-r from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 text-white font-extrabold py-4 rounded-2xl shadow-xl shadow-cyan-900/20 transition-all transform active:scale-[0.98] flex items-center justify-center gap-3 uppercase tracking-wider">
+                <i class="fa-solid fa-wand-magic-sparkles text-lg"></i> Phân tích học tập
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Dữ liệu các chuyên đề theo môn và khối lớp
+    // Dữ liệu các chuyên đề theo môn và khối lớp (Full Chương trình 2018)
+    const topicsData = {
+        "Toán": {
+            "10": [
+                {name: "Mệnh đề và Tập hợp", weight: 1.0},
+                {name: "Bất phương trình và Hệ BPT", weight: 1.2},
+                {name: "Hàm số và Đồ thị", weight: 1.3},
+                {name: "Hệ thức lượng trong tam giác", weight: 1.1},
+                {name: "Vectơ", weight: 1.4}
+            ],
+            "11": [
+                {name: "Hàm số lượng giác và PTLG", weight: 1.2},
+                {name: "Dãy số. Cấp số cộng - CSN", weight: 1.0},
+                {name: "Quan hệ song song", weight: 1.3},
+                {name: "Giới hạn. Hàm số liên tục", weight: 1.4},
+                {name: "Hàm số mũ và lôgarit", weight: 1.3},
+                {name: "Quan hệ vuông góc", weight: 1.3},
+                {name: "Các quy tắc tính xác suất", weight: 1.1},
+                {name: "Đạo hàm", weight: 1.5}
+            ],
+            "12": [
+                {name: "Ứng dụng đạo hàm", weight: 1.5},
+                {name: "Hàm số lũy thừa, mũ, lôgarit", weight: 1.4},
+                {name: "Nguyên hàm - Tích phân", weight: 1.5},
+                {name: "Số phức", weight: 1.0},
+                {name: "Khối đa diện và Thể tích", weight: 1.3}
+            ]
+        },
+        "Vật lý": {
+            "10": [
+                {name: "Động học", weight: 1.2},
+                {name: "Động lực học", weight: 1.5},
+                {name: "Năng lượng - Công", weight: 1.4},
+                {name: "Động lượng", weight: 1.3},
+                {name: "Chuyển động tròn", weight: 1.2}
+            ],
+            "11": [
+                {name: "Dao động cơ", weight: 1.5},
+                {name: "Sóng cơ và Sóng âm", weight: 1.4},
+                {name: "Điện trường", weight: 1.3},
+                {name: "Dòng điện không đổi", weight: 1.2}
+            ],
+            "12": [
+                {name: "Vật lí nhiệt", weight: 1.4},
+                {name: "Khí lí tưởng", weight: 1.3},
+                {name: "Từ trường", weight: 1.5},
+                {name: "Vật lí hạt nhân", weight: 1.4}
+            ]
+        },
+        "Hóa học": {
+            "10": [
+                {name: "Cấu tạo nguyên tử", weight: 1.1},
+                {name: "Bảng tuần hoàn", weight: 1.2},
+                {name: "Liên kết hóa học", weight: 1.4},
+                {name: "Phản ứng oxi hóa - khử", weight: 1.5},
+                {name: "Năng lượng & Tốc độ PƯ", weight: 1.3}
+            ],
+            "11": [
+                {name: "Cân bằng hóa học", weight: 1.3},
+                {name: "Nitrogen - Sulfur", weight: 1.2},
+                {name: "Đại cương hóa hữu cơ", weight: 1.4},
+                {name: "Hydrocarbon", weight: 1.5}
+            ],
+            "12": [
+                {name: "Ester - Lipid", weight: 1.4},
+                {name: "Carbohydrate", weight: 1.2},
+                {name: "Amine, Amino acid, Protein", weight: 1.5},
+                {name: "Polymer", weight: 1.1},
+                {name: "Đại cương kim loại", weight: 1.5}
+            ]
+        }
+    };
+
+    function updateTopics() {
+        const subject = document.getElementById("subjectSelect").value;
+        const grade = document.getElementById("gradeSelect").value;
+        const container = document.getElementById("topicsContainer");
+        
+        container.innerHTML = ""; // Xóa dữ liệu cũ
+        
+        // Lấy danh sách chuyên đề tương ứng, nếu không có thì trả về mảng rỗng
+        const topics = (topicsData[subject] && topicsData[subject][grade]) ? topicsData[subject][grade] : [];
+        
+        if(topics.length === 0) {
+            container.innerHTML = `<div class="col-span-2 text-center text-slate-500 py-6 text-sm">Chưa có dữ liệu chuyên đề cho ${subject} lớp ${grade}.</div>`;
+            return;
+        }
+
+        topics.forEach((topic, index) => {
+            const html = `
+                <div class="group">
+                    <input type="hidden" name="topic_name_${index}" value="${topic.name}">
+                    <label class="block text-sm font-semibold text-slate-300 group-hover:text-cyan-400 transition-colors mb-2 px-1">
+                        ${topic.name} <span class="text-[10px] text-slate-500 font-normal ml-1">(w: ${topic.weight})</span>
+                    </label>
+                    <input type="number" step="0.1" min="0" max="10" name="topic_score_${index}" placeholder="Nhập điểm môn hiện tại" 
+                           class="w-full bg-slate-950/50 border border-slate-800 text-slate-100 p-3 rounded-xl focus:border-cyan-500/50 focus:bg-slate-950 transition-all outline-none text-sm shadow-inner" required>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+        });
+    }
+
+    // Chạy lần đầu tiên khi tải trang để hiển thị môn Toán 11
+    window.onload = updateTopics;
+</script>
+
+</body>
+</html>

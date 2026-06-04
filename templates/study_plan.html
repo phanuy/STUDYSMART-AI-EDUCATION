@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kế hoạch Học tập Premium - StudySmart AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 min-h-screen flex flex-col font-sans antialiased text-slate-200 relative overflow-x-hidden">
+
+<div class="absolute top-20 left-10 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute bottom-10 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+<nav class="backdrop-blur-md bg-slate-900/60 border-b border-slate-800 text-white shadow-lg sticky top-0 z-50 shrink-0">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="flex justify-between items-center py-4">
+            <div class="flex gap-6">
+                <a href="/" class="hover:text-cyan-400 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-book"></i> Chuyên đề</a>
+                <a href="/overview" class="hover:text-cyan-400 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-chart-simple"></i> Tổng quan</a>
+                <a href="/study-plan" class="text-cyan-400 font-bold border-b-2 border-cyan-400 pb-1 flex items-center gap-1.5"><i class="fa-solid fa-calendar-days"></i> Lịch học</a>
+                <a href="/ai" class="hover:text-cyan-400 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-robot"></i> AI Gia sư</a>
+            </div>
+            <div class="flex gap-4 items-center">
+                {% if session.get('user_id') %}
+                    <span class="text-sm text-slate-400">Xin chào, <b class="text-cyan-400">{{ session.get('username') }}</b></span>
+                    <a href="/logout" class="text-sm bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-4 py-1.5 rounded-xl border border-red-500/30 transition-all duration-300">Đăng xuất</a>
+                {% else %}
+                    <a href="/login" class="text-sm font-semibold text-slate-300 hover:text-cyan-400 transition-colors">Đăng nhập</a>
+                    <a href="/register" class="text-sm bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-4 py-1.5 rounded-xl font-bold shadow-md transition-all">Đăng ký</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="max-w-6xl mx-auto p-6 w-full z-10 relative flex-1">
+    
+    <div class="backdrop-blur-xl bg-slate-900/40 p-4 rounded-2xl border border-slate-800 shadow-xl mb-6 flex flex-wrap justify-between items-center gap-4">
+        <div class="flex items-center gap-2.5">
+            <span class="text-2xl text-cyan-400"><i class="fa-solid fa-calendar-check"></i></span>
+            <h1 class="text-xl font-bold text-slate-100">Lộ trình bứt phá điểm số cá nhân</h1>
+        </div>
+        <div class="flex gap-6 text-sm font-semibold text-slate-300">
+            <div class="flex items-center gap-1.5">
+                <span class="text-orange-500"><i class="fa-solid fa-fire"></i> Streak:</span>
+                <span id="streak-val" class="text-orange-400 font-bold">{{ session.get('streak', 0) }} ngày</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <span class="text-yellow-500"><i class="fa-solid fa-bolt"></i> XP:</span>
+                <span id="xp-val" class="text-yellow-400 font-bold">{{ session.get('xp', 0) }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="backdrop-blur-xl bg-slate-900/40 p-5 rounded-2xl border border-slate-800 shadow-xl mb-6">
+        <div class="flex justify-between items-center mb-2">
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tiến độ hoàn thành nhiệm vụ tuần</span>
+            <span id="progress-text" class="text-sm font-bold text-cyan-400">0%</span>
+        </div>
+        <div class="w-full bg-slate-950 rounded-full h-3.5 overflow-hidden border border-slate-800/60">
+            <div id="progress-bar" class="bg-gradient-to-r from-cyan-500 to-blue-600 h-3.5 rounded-full transition-all duration-500 ease-out shadow-[0_0_10px_rgba(6,182,212,0.5)]" style="width: 0%"></div>
+        </div>
+    </div>
+
+    {% if plan %}
+    <div class="grid md:grid-cols-2 gap-6">
+        {% for day in plan %}
+        {% set day_index = loop.index %}
+        
+        <div class="backdrop-blur-xl bg-slate-900/40 p-5 rounded-2xl border-t-4 {% if loop.first %}border-emerald-500 bg-emerald-950/10{% else %}border-cyan-500{% endif %} border-x border-b border-slate-800 shadow-xl flex flex-col justify-between">
+            <div>
+                <div class="flex justify-between items-center border-b border-slate-800 pb-2.5 mb-3.5">
+                    <span class="font-bold text-slate-200 uppercase tracking-wider text-xs flex items-center gap-1.5">
+                        {% if loop.first %}<span class="text-emerald-400">🚀 Hôm nay ({{ day.day }})</span>{% else %}{{ day.day }}{% endif %}
+                    </span>
+                    <span class="text-xs font-medium text-slate-400 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">{{ day.date }}</span>
+                </div>
+
+                <div class="mb-4">
+                    <h3 class="font-bold text-base text-slate-100 mb-1.5">📘 {{ day.topic }}</h3>
+                    <div class="flex gap-4 text-xs font-medium text-slate-400">
+                        <span>🎯 Hiện tại: <b class="text-red-400">{{ day.score }}đ</b></span>
+                        <span>⏱ Thời gian: <b class="text-cyan-400">{{ day.duration }} phút</b></span>
+                    </div>
+                </div>
+
+                <div class="space-y-2 my-4">
+                    {% for session_item in day.schedule %}
+                    {% set task_id = "task_" ~ day_index ~ "_" ~ loop.index %}
+                    <label for="{{ task_id }}" class="flex items-center gap-3 p-3 rounded-xl border border-slate-800 bg-slate-950/40 hover:bg-slate-800/40 cursor-pointer transition-all select-none group">
+                        <input 
+                            type="checkbox" 
+                            id="{{ task_id }}"
+                            class="task-checkbox w-4.5 h-4.5 rounded border-slate-700 bg-slate-900 text-cyan-500 focus:ring-cyan-500/50"
+                            data-day="{{ day.date }}"
+                            data-index="{{ loop.index0 }}"
+                            {% if progress.get(day.date) and (loop.index0 in progress.get(day.date)) %}checked{% endif %}
+                            onclick="toggleTask(this)"
+                        >
+                        <span class="text-xs font-medium text-slate-300 group-hover:text-slate-100 transition-colors">{{ session_item }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="mt-4 pt-3.5 border-t border-slate-800 flex items-center justify-between gap-2">
+                <a href="{{ day.resource }}" target="_blank" class="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-semibold transition-colors">
+                    <i class="fa-solid fa-file-lines"></i> Tài liệu lý thuyết
+                </a>
+                <button 
+                    onclick="markDayDone('{{ day.date }}', this)" 
+                    class="{% if day.date in progress.get('completed_days', []) %}bg-green-600 hover:bg-green-700{% else %}bg-blue-600 hover:bg-blue-700{% endif %} text-white px-4 py-2 rounded-lg mt-3 transition-colors text-sm font-semibold"
+                    {% if day.date in progress.get('completed_days', []) %}disabled{% endif %}>
+                    {% if day.date in progress.get('completed_days', []) %}✅ Đã hoàn thành{% else %}Đã xong ngày hôm nay{% endif %}
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="backdrop-blur-xl bg-slate-900/40 p-12 rounded-2xl border border-slate-800 text-center shadow-2xl">
+        <span class="text-5xl block mb-4">📂</span>
+        <h3 class="text-lg font-bold text-slate-300 mb-2">Chưa có dữ liệu lộ trình học</h3>
+        <p class="text-xs text-slate-500 mb-6 max-w-sm mx-auto">Vui lòng quay lại trang chuyên đề, chọn môn học và nhập điểm số để hệ thống AI phân tích.</p>
+        <a href="/" class="bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-bold px-6 py-3 rounded-xl inline-block shadow">
+            Thiết lập lộ trình ngay
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+function updateProgressBar() {
+    const allCheckboxes = document.querySelectorAll('.task-checkbox');
+    const checkedCheckboxes = document.querySelectorAll('.task-checkbox:checked');
+    if (allCheckboxes.length === 0) return;
+
+    const percentage = Math.round((checkedCheckboxes.length / allCheckboxes.length) * 100);
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    
+    if (progressBar && progressText) {
+        progressBar.style.width = percentage + '%';
+        progressText.innerText = percentage + '%';
+    }
+}
+
+function toggleTask(checkbox) {
+    const day = checkbox.getAttribute('data-day');
+    const index = parseInt(checkbox.getAttribute('data-index'));
+
+    fetch('/toggle-task', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ day: day, index: index })
+    })
+    .then(response => response.json())
+    .then(data => { 
+        if (data.error) {
+            alert(data.error);
+            checkbox.checked = !checkbox.checked; // Trả lại trạng thái nếu chưa đăng nhập
+        } else {
+            updateProgressBar(); 
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        checkbox.checked = !checkbox.checked; // Hoàn tác nếu lỗi mạng
+    });
+}
+
+function markDayDone(dayName, btnElement) {
+    fetch('/complete-day', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ day: dayName })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === "success") {
+            // Đổi giao diện nút bấm
+            btnElement.innerText = "✅ Đã hoàn thành";
+            btnElement.classList.replace("bg-blue-600", "bg-green-600");
+            btnElement.classList.replace("hover:bg-blue-700", "hover:bg-green-700");
+            btnElement.disabled = true;
+            
+            // Cập nhật DOM hiển thị XP và Streak lập tức
+            if (data.xp !== undefined) document.getElementById('xp-val').innerText = data.xp;
+            if (data.streak !== undefined) document.getElementById('streak-val').innerText = data.streak + ' ngày';
+            
+            alert(`Tuyệt vời! Bạn được cộng +10 XP. Streak hiện tại: ${data.streak} ngày 🚀`);
+        } else {
+            alert(data.error || "Vui lòng đăng nhập để lưu tiến độ!");
+        }
+    })
+    .catch(err => {
+        console.error("Lỗi kết nối:", err);
+        alert("Không thể lưu tiến độ, vui lòng thử lại!");
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    updateProgressBar();
+});
+</script>
+</body>
+</html>

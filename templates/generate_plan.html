@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lộ Trình Bứt Phá AI - StudySmart AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 min-h-screen flex flex-col font-sans antialiased text-slate-200 relative overflow-x-hidden">
+
+<div class="absolute top-20 left-10 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute bottom-10 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+<nav class="backdrop-blur-md bg-slate-900/60 border-b border-slate-800 text-white shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="flex justify-between items-center py-4">
+            <div class="flex gap-6">
+                <a href="/" class="hover:text-cyan-400 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-book"></i> Chuyên đề</a>
+                <a href="/overview" class="hover:text-cyan-400 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-chart-simple"></i> Tổng quan</a>
+                <a href="/study-plan" class="hover:text-cyan-400 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-calendar-days"></i> Lịch học</a>
+                <a href="/ai" class="hover:text-cyan-400 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-robot"></i> AI Gia sư</a>
+            </div>
+            <div class="flex gap-4 items-center">
+                {% if session.get('user_id') %}
+                    <span class="text-sm text-slate-400">Xin chào, <b class="text-cyan-400">{{ session.get('username') }}</b></span>
+                    <a href="/logout" class="text-sm bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-4 py-1.5 rounded-xl border border-red-500/30 transition-all duration-300">Đăng xuất</a>
+                {% else %}
+                    <a href="/login" class="text-sm font-semibold text-slate-300 hover:text-cyan-400 transition-colors">Đăng nhập</a>
+                    <a href="/register" class="text-sm bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-4 py-1.5 rounded-xl font-bold shadow-md transition-all">Đăng ký</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="max-w-7xl mx-auto p-6 w-full z-10 relative flex-1 space-y-8">
+    
+    <div class="backdrop-blur-xl bg-slate-900/40 p-8 rounded-3xl border border-slate-800 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="space-y-2 text-center md:text-left">
+            <span class="text-xs font-bold text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-500/20 uppercase tracking-wider">Báo cáo phân tích hoàn tất</span>
+            <h1 class="text-3xl font-black text-white">Lộ Trình Học Tập Môn {{ subject }} - Lớp {{ grade }}</h1>
+            <p class="text-slate-400 text-sm">Dựa trên thuật toán tối ưu thời gian học với mục tiêu <b class="text-purple-400">{{ target_score }} điểm</b> ({{ study_hours }}h/ngày).</p>
+        </div>
+        <a href="/" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-5 py-3 rounded-2xl border border-slate-700 transition-all text-sm flex items-center gap-2">
+            <i class="fa-solid fa-arrow-left"></i> Nhập lại điểm số
+        </a>
+    </div>
+
+    <div class="grid lg:grid-cols-12 gap-8">
+        
+        <div class="lg:col-span-7 backdrop-blur-xl bg-slate-900/40 p-6 rounded-3xl border border-slate-800 shadow-xl flex flex-col justify-between">
+            <div>
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 text-lg shadow-lg">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-white">Đánh Giá & Lời Khuyên Từ AI</h2>
+                </div>
+                
+                <div class="bg-slate-950/40 border border-slate-800/80 p-5 rounded-2xl space-y-4 text-sm leading-relaxed text-slate-300">
+                    <p class="text-cyan-300 font-medium">👋 Chào bạn! AI đã quét qua bảng điểm chuyên đề của bạn rồi nhé. Dưới đây là chiến thuật "bứt phá" dành riêng cho bạn:</p>
+                    <ul class="space-y-3 list-none pl-1">
+                        {% for advice in ai_advices %}
+                        <li class="flex items-start gap-2.5">
+                            <i class="fa-solid fa-circle-check text-cyan-500 mt-1 text-xs"></i>
+                            <span>{{ advice }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <p class="text-xs text-slate-500 italic">"Học tập là một hành trình, đi chậm một chút nhưng chắc chắn vẫn tốt hơn dừng lại. Cố lên nhé!"</p>
+                </div>
+            </div>
+
+            <div class="mt-6 pt-6 border-t border-slate-800/60">
+                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3"><i class="fa-solid fa-graduation-cap text-purple-400 mr-1"></i> Tiêu điểm cần ôn luyện & Video bổ trợ:</h3>
+                <div class="space-y-3">
+                    {% for topic in focus_topics %}
+                    <div class="bg-slate-950/60 p-4 rounded-xl border border-slate-800/60 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+                        <div class="space-y-1">
+                            <h4 class="text-sm font-bold text-white">{{ topic.name }}</h4>
+                            <span class="text-xs bg-red-500/10 text-red-400 px-2 py-0.5 rounded border border-red-500/20">Trọng tâm: Điểm hiện tại {{ topic.score }}</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <a href="{{ topic.doc_link }}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs font-bold px-3 py-2 rounded-lg border border-slate-700 flex items-center gap-1.5 transition-all">
+                                <i class="fa-solid fa-file-lines"></i> Tài liệu
+                            </a>
+                            <button onclick="openVideo('{{ topic.video_id }}')" class="bg-purple-500/20 hover:bg-purple-500 text-purple-300 hover:text-white text-xs font-bold px-3 py-2 rounded-lg border border-purple-500/30 flex items-center gap-1.5 transition-all">
+                                <i class="fa-solid fa-play"></i> Xem Bài Giảng
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-5 backdrop-blur-xl bg-slate-900/40 p-6 rounded-3xl border border-slate-800 shadow-xl flex flex-col justify-between">
+            <div>
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400 text-lg shadow-lg">
+                        <i class="fa-solid fa-chart-bar"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-white">So Sánh Năng Lực Hiện Tại</h2>
+                </div>
+                <p class="text-xs text-slate-400 mb-4">Biểu đồ thể hiện khoảng cách giữa điểm số thực tế và mục tiêu {{ target_score }} điểm.</p>
+            </div>
+            <div class="bg-slate-950/40 p-4 rounded-2xl border border-slate-800/60 h-72 flex items-center justify-center">
+                <canvas id="analyticsChart" class="w-full h-full"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="backdrop-blur-xl bg-slate-900/40 p-6 rounded-3xl border border-slate-800 shadow-xl">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-lg shadow-lg">
+                <i class="fa-solid fa-calendar-week"></i>
+            </div>
+            <div>
+                <h2 class="text-xl font-bold text-white">Phân Phối Lịch Học 7 Ngày Sắp Tới</h2>
+                <p class="text-xs text-slate-400">Kế hoạch ôn tập thông minh chia nhỏ theo ngày nhằm giảm áp lực não bộ.</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-4">
+            {% for day in weekly_schedule %}
+            <div class="bg-slate-950/40 p-4 rounded-2xl border border-slate-800 hover:border-cyan-500/30 transition-all flex flex-col justify-between group">
+                <div class="space-y-2">
+                    <span class="text-xs font-black text-cyan-400 group-hover:text-cyan-300 transition-colors uppercase block">{{ day.name }}</span>
+                    <h4 class="text-xs font-bold text-slate-200 line-clamp-2 leading-tight min-h-[2rem]">{{ day.focus }}</h4>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-800/60 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-500"><i class="fa-solid fa-clock mr-1"></i> Thời gian:</span>
+                    <span class="text-emerald-400 font-bold">{{ day.duration }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+<div id="videoModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-3xl w-full p-4 relative shadow-2xl">
+        <button onclick="closeVideo()" class="absolute -top-4 -right-4 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold shadow-lg transition-all">&times;</button>
+        <div class="aspect-video w-full rounded-xl overflow-hidden shadow-inner bg-black">
+            <iframe id="videoPlayer" class="w-full h-full" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. Cấu hình vẽ biểu đồ cột bằng Chart.js dựa trên dữ liệu từ Flask nhận về
+    const ctx = document.getElementById('analyticsChart').getContext('2d');
+    
+    // Nhận dữ liệu mảng từ backend thông qua bộ lọc mã hóa an toàn của Jinja2
+    const labels = {{ chart_labels | tojson }};
+    const currentScores = {{ chart_scores | tojson }};
+    const targetScoreValue = {{ target_score }};
+    
+    // Tạo mảng giá trị mục tiêu bằng đúng điểm mục tiêu của người dùng để vẽ đường giới hạn hoặc cột so sánh
+    const targetScores = Array(labels.length).fill(targetScoreValue);
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Điểm hiện tại',
+                    data: currentScores,
+                    backgroundColor: 'rgba(34, 211, 238, 0.5)', // Màu cyan mờ
+                    borderColor: 'rgba(34, 211, 238, 1)',
+                    borderWidth: 1.5,
+                    borderRadius: 8,
+                },
+                {
+                    label: 'Mục tiêu bứt phá',
+                    data: targetScores,
+                    backgroundColor: 'rgba(168, 85, 247, 0.2)', // Màu tím mờ
+                    borderColor: 'rgba(168, 85, 247, 0.8)',
+                    borderWidth: 1.5,
+                    borderRadius: 8,
+                    borderDash: [4, 4]
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: { color: '#94a3b8', font: { size: 11, family: 'sans-serif' } }
+                }
+            },
+            scales: {
+                y: {
+                    min: 0,
+                    max: 10,
+                    grid: { color: 'rgba(51, 65, 85, 0.3)' },
+                    ticks: { color: '#64748b' }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        color: '#94a3b8',
+                        font: { size: 10 },
+                        callback: function(value) {
+                            // Cắt bớt chữ nếu tên chuyên đề quá dài trên biểu đồ
+                            let label = this.getLabelForValue(value);
+                            if (label.length > 15) return label.substring(0, 15) + '...';
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // 2. Logic điều khiển bật/tắt cửa sổ Video bài giảng YouTube Widget
+    function openVideo(videoId) {
+        const modal = document.getElementById('videoModal');
+        const player = document.getElementById('videoPlayer');
+        player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeVideo() {
+        const modal = document.getElementById('videoModal');
+        const player = document.getElementById('videoPlayer');
+        player.src = ""; // Reset link để tắt âm thanh chạy ngầm khi đóng
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+    }
+</script>
+
+</body>
+</html>
